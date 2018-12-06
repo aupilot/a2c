@@ -112,7 +112,7 @@ def main():
             # Sample actions only
             with torch.no_grad():
                 value, action, action_log_prob, recurrent_hidden_states = actor_critic.act(
-                        rollouts.obs[step],
+                        torch.cat((rollouts.obs[step], rollouts.obs_prev[step]), 1),
                         rollouts.recurrent_hidden_states[step],
                         rollouts.masks[step])
 
@@ -129,7 +129,7 @@ def main():
             rollouts.insert(obs, recurrent_hidden_states, action, action_log_prob, value, reward, masks)
 
         with torch.no_grad():
-            next_value = actor_critic.get_value(rollouts.obs[-1],
+            next_value = actor_critic.get_value(torch.cat((rollouts.obs[-1],rollouts.obs_prev[-2]), 1),
                                                 rollouts.recurrent_hidden_states[-1],
                                                 rollouts.masks[-1]).detach()
 
@@ -193,7 +193,10 @@ def main():
             while len(eval_episode_rewards) < 10:
                 with torch.no_grad():
                     _, action, _, eval_recurrent_hidden_states = actor_critic.act(
-                        obs, eval_recurrent_hidden_states, eval_masks, deterministic=True)
+                        torch.cat((obs, obs), 1),       # we use obs as both current and prev value
+                        eval_recurrent_hidden_states,
+                        eval_masks,
+                        deterministic=True)
 
                 # Obser reward and next obs
                 obs, reward, done, infos = eval_envs.step(action)
