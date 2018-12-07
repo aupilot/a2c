@@ -60,10 +60,11 @@ def load_data(indir, smooth, bin_size):
             f.readline()
             f.readline()
             for line in f:
-                tmp = line.split(',')
-                t_time = float(tmp[2])
-                tmp = [t_time, int(tmp[1]), float(tmp[0])]
-                datas.append(tmp)
+                if line is not '\n':        # this check required for windows
+                    tmp = line.split(',')
+                    t_time = float(tmp[2])
+                    tmp = [t_time, int(tmp[1]), float(tmp[0])]
+                    datas.append(tmp)
 
     datas = sorted(datas, key=lambda d_entry: d_entry[0])
     result = []
