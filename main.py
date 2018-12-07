@@ -4,12 +4,8 @@ import os
 import time
 from collections import deque
 
-import gym
 import numpy as np
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
 
 from a2c_ppo_acktr import algo
 from a2c_ppo_acktr.arguments import get_args
@@ -35,22 +31,6 @@ torch.cuda.manual_seed_all(args.seed)
 if args.cuda and torch.cuda.is_available() and args.cuda_deterministic:
     torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.deterministic = True
-
-try:
-    os.makedirs(args.log_dir)
-except OSError:
-    files = glob.glob(os.path.join(args.log_dir, '*.monitor.csv'))
-    for f in files:
-        os.remove(f)
-
-eval_log_dir = args.log_dir + "_eval"
-
-try:
-    os.makedirs(eval_log_dir)
-except OSError:
-    files = glob.glob(os.path.join(eval_log_dir, '*.monitor.csv'))
-    for f in files:
-        os.remove(f)
 
 
 def main():
@@ -223,4 +203,21 @@ def main():
 
 
 if __name__ == "__main__":
+
+    try:
+        os.makedirs(args.log_dir)
+    except OSError:
+        files = glob.glob(os.path.join(args.log_dir, '*.monitor.csv'))
+        for f in files:
+            os.remove(f)
+
+    eval_log_dir = args.log_dir + "_eval"
+
+    try:
+        os.makedirs(eval_log_dir)
+    except OSError:
+        files = glob.glob(os.path.join(eval_log_dir, '*.monitor.csv'))
+        for f in files:
+            os.remove(f)
+
     main()
