@@ -225,27 +225,34 @@ class MLPBase(NNBase):
 
         self.actor = nn.Sequential(
             init_(nn.Linear(num_inputs, hidden_size)),
+            # nn.Linear(num_inputs, hidden_size),
             nn.BatchNorm1d(hidden_size),
             nn.LeakyReLU(),
             init_(nn.Linear(hidden_size, hidden_size)),
+            # nn.Linear(hidden_size, hidden_size),
             nn.BatchNorm1d(hidden_size),
             nn.LeakyReLU(),
             init_(nn.Linear(hidden_size, hidden_size)),
+            # nn.Linear(hidden_size, hidden_size),
             nn.Tanh()
         )
 
         self.critic = nn.Sequential(
             init_(nn.Linear(num_inputs, hidden_size)),
+            # nn.Linear(num_inputs, hidden_size),
             nn.BatchNorm1d(hidden_size),
             nn.LeakyReLU(),
             init_(nn.Linear(hidden_size, hidden_size)),
+            # nn.Linear(hidden_size, hidden_size),
             nn.BatchNorm1d(hidden_size),
             nn.LeakyReLU(),
             init_(nn.Linear(hidden_size, hidden_size)),
+            # nn.Linear(hidden_size, hidden_size),
             nn.Tanh()
         )
 
         self.critic_linear = init_(nn.Linear(hidden_size, 1))
+        # self.critic_linear = nn.Linear(hidden_size, 1)
 
         self.train()
 
