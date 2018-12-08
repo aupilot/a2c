@@ -50,6 +50,7 @@ def get_args():
     parser.add_argument('--num-env-steps', type=int, default=10e6,
                         help='number of environment steps to train (default: 10e6)')
     parser.add_argument('--env-name', default='MinitaurBulletEnv-v0',
+    # parser.add_argument('--env-name', default='CartPoleBulletEnv-v1',
                         help='environment to train on (default: PongNoFrameskip-v4)')
     parser.add_argument('--log-dir', default='/tmp/gym/',
                         help='directory to save agent logs (default: /tmp/gym)')
