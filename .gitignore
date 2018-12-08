@@ -5,4 +5,5 @@ workspace.xml
 encodings.xml
 markdown-navigator.xml
 misc.xml
-logs
+.idea/a2c.iml
+logs/
