@@ -1,9 +1,5 @@
 a2c_ppo_acktr/__pycache__
 a2c_ppo_acktr/algo/__pycache__
 trained_models
-workspace.xml
-encodings.xml
-markdown-navigator.xml
-misc.xml
-.idea/a2c.iml
+.idea/
 logs/
