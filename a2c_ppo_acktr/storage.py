@@ -9,7 +9,7 @@ def _flatten_helper(T, N, _tensor):
 class RolloutStorage(object):
     def __init__(self, num_steps, num_processes, obs_shape, action_space, recurrent_hidden_state_size):
         self.obs = torch.zeros(num_steps + 1, num_processes, *obs_shape)
-        self.obs_prev = torch.zeros(num_steps + 2, num_processes, *obs_shape)   # we keep prev state to pass to NN
+        # self.obs_prev = torch.zeros(num_steps + 2, num_processes, *obs_shape)   # we keep prev state to pass to NN
         self.recurrent_hidden_states = torch.zeros(num_steps + 1, num_processes, recurrent_hidden_state_size)
         self.rewards = torch.zeros(num_steps, num_processes, 1)
         self.value_preds = torch.zeros(num_steps + 1, num_processes, 1)
@@ -29,7 +29,7 @@ class RolloutStorage(object):
 
     def to(self, device):
         self.obs = self.obs.to(device)
-        self.obs_prev = self.obs_prev.to(device)
+        # self.obs_prev = self.obs_prev.to(device)
         self.recurrent_hidden_states = self.recurrent_hidden_states.to(device)
         self.rewards = self.rewards.to(device)
         self.value_preds = self.value_preds.to(device)
@@ -40,7 +40,7 @@ class RolloutStorage(object):
 
     def insert(self, obs, recurrent_hidden_states, actions, action_log_probs, value_preds, rewards, masks):
         self.obs[self.step + 1].copy_(obs)
-        self.obs_prev[self.step + 2].copy_(obs)
+        # self.obs_prev[self.step + 2].copy_(obs)
         self.recurrent_hidden_states[self.step + 1].copy_(recurrent_hidden_states)
         self.actions[self.step].copy_(actions)
         self.action_log_probs[self.step].copy_(action_log_probs)
@@ -52,8 +52,8 @@ class RolloutStorage(object):
 
     def after_update(self):
         self.obs[0].copy_(self.obs[-1])
-        self.obs_prev[0].copy_(self.obs_prev[-2])
-        self.obs_prev[1].copy_(self.obs_prev[-1])
+        # self.obs_prev[0].copy_(self.obs_prev[-2])
+        # self.obs_prev[1].copy_(self.obs_prev[-1])
         self.recurrent_hidden_states[0].copy_(self.recurrent_hidden_states[-1])
         self.masks[0].copy_(self.masks[-1])
 
@@ -84,8 +84,9 @@ class RolloutStorage(object):
         sampler = BatchSampler(SubsetRandomSampler(range(batch_size)), mini_batch_size, drop_last=False)
         for indices in sampler:
             obs_batch = self.obs[:-1].view(-1, *self.obs.size()[2:])[indices]
-            obs_batch_prev = self.obs_prev[:-1].view(-1, *self.obs.size()[2:])[indices]
-            obs_combined = torch.cat((obs_batch, obs_batch_prev), 1)
+            # obs_batch_prev = self.obs_prev[:-1].view(-1, *self.obs.size()[2:])[indices]
+            # obs_combined = torch.cat((obs_batch, obs_batch_prev), 1)
+            obs_combined = obs_batch
             recurrent_hidden_states_batch = \
                 self.recurrent_hidden_states[:-1].view(-1, self.recurrent_hidden_states.size(-1))[indices]
             actions_batch = self.actions.view(-1, self.actions.size(-1))[indices]

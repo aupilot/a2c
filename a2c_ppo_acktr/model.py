@@ -25,8 +25,8 @@ class Policy(nn.Module):
             else:
                 raise NotImplementedError
 
-        # self.base = base(obs_shape[0], **base_kwargs)
-        self.base = base(obs_shape[0]*2, **base_kwargs)     # adding prev observation to the input
+        self.base = base(obs_shape[0], **base_kwargs)
+        # self.base = base(obs_shape[0]*2, **base_kwargs)     # adding prev observation to the input
 
         if action_space.__class__.__name__ == "Discrete":
             num_outputs = action_space.n

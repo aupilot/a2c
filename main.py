@@ -92,7 +92,7 @@ def main():
             # Sample actions only
             with torch.no_grad():
                 value, action, action_log_prob, recurrent_hidden_states = actor_critic.act(
-                        torch.cat((rollouts.obs[step], rollouts.obs_prev[step]), 1),
+                        rollouts.obs[step],
                         rollouts.recurrent_hidden_states[step],
                         rollouts.masks[step])
 
@@ -109,7 +109,7 @@ def main():
             rollouts.insert(obs, recurrent_hidden_states, action, action_log_prob, value, reward, masks)
 
         with torch.no_grad():
-            next_value = actor_critic.get_value(torch.cat((rollouts.obs[-1],rollouts.obs_prev[-2]), 1),
+            next_value = actor_critic.get_value(rollouts.obs[-1],
                                                 rollouts.recurrent_hidden_states[-1],
                                                 rollouts.masks[-1]).detach()
 
