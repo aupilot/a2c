@@ -17,8 +17,8 @@ parser.add_argument('--seed', type=int, default=1,
                     help='random seed (default: 1)')
 parser.add_argument('--log-interval', type=int, default=10,
                     help='log interval, one log per n updates (default: 10)')
-parser.add_argument('--env-name', default='CartPole-v1',
-                    help='environment to train on (default: PongNoFrameskip-v4)')
+parser.add_argument('--env-name', default='MinitaurBulletEnv-v0', #'HalfCheetahBulletEnv-v0',
+                    help='environment to train on (default: MinitaurBulletEnv-v0)')
 parser.add_argument('--load-dir', default='./trained_models/a2c',
                     help='directory to save agent logs (default: ./trained_models/)')
 parser.add_argument('--add-timestep', action='store_true', default=False,
@@ -61,9 +61,10 @@ if args.env_name.find('Bullet') > -1:
             torsoId = i
 
 while True:
+    obs_prev = obs
     with torch.no_grad():
         value, action, _, recurrent_hidden_states = actor_critic.act(
-            obs, recurrent_hidden_states, masks, deterministic=args.det)
+            torch.cat((obs, obs_prev), 1), recurrent_hidden_states, masks, deterministic=args.det)
 
     # Obser reward and next obs
     obs, reward, done, _ = env.step(action)
