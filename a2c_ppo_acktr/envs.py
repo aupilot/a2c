@@ -164,6 +164,7 @@ class VecNormalize(VecNormalize_):
 
     def _obfilt(self, obs):
         if self.ob_rms:
+            obs = np.array(obs).squeeze(axis=0)
             if self.training:
                 self.ob_rms.update(obs)
             obs = np.clip((obs - self.ob_rms.mean) / np.sqrt(self.ob_rms.var + self.epsilon), -self.clipob, self.clipob)

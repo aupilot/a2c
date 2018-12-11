@@ -6,6 +6,7 @@ from collections import deque
 
 import numpy as np
 import torch
+from tensorboardX import SummaryWriter, writer
 
 from a2c_ppo_acktr import algo
 from a2c_ppo_acktr.arguments import get_args
@@ -32,18 +33,17 @@ if args.cuda and torch.cuda.is_available() and args.cuda_deterministic:
     torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.deterministic = True
 
+times = time.strftime("%b%d-%H%M", time.localtime())
 
 def main():
     torch.set_num_threads(1)
     device = torch.device("cuda:0" if args.cuda else "cpu")
 
-    if args.vis:
-        from visdom import Visdom
-        viz = Visdom(port=args.port)
-        win = None
+    writer = SummaryWriter(args.log_dir + f'/{times}/')
+    # writer = SummaryWriter()
 
     envs = make_vec_envs(args.env_name, args.seed, args.num_processes,
-                        args.gamma, args.log_dir, args.add_timestep, device, False)
+                        args.gamma, args.log_dir, args.add_timestep, device, True)
 
     actor_critic = Policy(envs.observation_space.shape, envs.action_space,
         base_kwargs={'recurrent': args.recurrent_policy})
@@ -67,7 +67,8 @@ def main():
                         envs.observation_space.shape, envs.action_space,
                         actor_critic.recurrent_hidden_state_size)
 
-    obs = envs.reset()
+    obs = envs.venv.reset()
+    obs = torch.FloatTensor(obs)
     rollouts.obs[0].copy_(obs)
     rollouts.to(device)
 
@@ -193,31 +194,34 @@ def main():
                 format(len(eval_episode_rewards),
                        np.mean(eval_episode_rewards)))
 
-        if args.vis and j % args.vis_interval == 0:
-            try:
-                # Sometimes monitor doesn't properly flush the outputs
-                win = visdom_plot(viz, win, args.log_dir, args.env_name,
-                                  args.algo, args.num_env_steps)
-            except IOError:
-                pass
+        if j % args.vis_interval == 0:
+            # writer.add_scalars(f'{times}',
+            #                    {'Reward':rollouts.returns[-1].sum().cpu().numpy(),
+            #                     'V Loss':value_loss,
+            #                    'A Loss': action_loss
+            #                     }, j)
+            writer.add_scalar('Reward', rollouts.returns[-1].sum().cpu().numpy(), j)
+            writer.add_scalar('V Loss', value_loss, j)
+            writer.add_scalar('A Loss', action_loss, j)
+
 
 
 if __name__ == "__main__":
 
-    try:
-        os.makedirs(args.log_dir)
-    except OSError:
-        files = glob.glob(os.path.join(args.log_dir, '*.monitor.csv'))
-        for f in files:
-            os.remove(f)
+    # try:
+    #     os.makedirs(args.log_dir)
+    # except OSError:
+    #     files = glob.glob(os.path.join(args.log_dir, '*.monitor.csv'))
+    #     for f in files:
+    #         os.remove(f)
 
     eval_log_dir = args.log_dir + "_eval"
 
-    try:
-        os.makedirs(eval_log_dir)
-    except OSError:
-        files = glob.glob(os.path.join(eval_log_dir, '*.monitor.csv'))
-        for f in files:
-            os.remove(f)
+    # try:
+    #     os.makedirs(eval_log_dir)
+    # except OSError:
+    #     files = glob.glob(os.path.join(eval_log_dir, '*.monitor.csv'))
+    #     for f in files:
+    #         os.remove(f)
 
     main()

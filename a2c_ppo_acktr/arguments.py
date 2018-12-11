@@ -39,8 +39,6 @@ def get_args():
                         help='number of batches for ppo (default: 32)')
     parser.add_argument('--clip-param', type=float, default=0.2,
                         help='ppo clip parameter (default: 0.2)')
-    parser.add_argument('--energy', type=float, default=0.005,
-                        help='ppo clip parameter (default: 0.2)')
     parser.add_argument('--log-interval', type=int, default=10,
                         help='log interval, one log per n updates (default: 10)')
     parser.add_argument('--save-interval', type=int, default=100,
@@ -54,8 +52,8 @@ def get_args():
     parser.add_argument('--env-name', default='MinitaurBulletEnv-v0',
     # parser.add_argument('--env-name', default='CartPoleBulletEnv-v1',
                         help='environment to train on (default: PongNoFrameskip-v4)')
-    parser.add_argument('--log-dir', default='/tmp/gym/',
-                        help='directory to save agent logs (default: /tmp/gym)')
+    parser.add_argument('--log-dir', default='./logs/',
+                        help='directory to save models (default: ./trained_models)')
     parser.add_argument('--save-dir', default='./trained_models/',
                         help='directory to save agent logs (default: ./trained_models/)')
     parser.add_argument('--no-cuda', action='store_true', default=False,
