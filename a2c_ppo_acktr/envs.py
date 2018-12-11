@@ -29,14 +29,14 @@ except ImportError:
     pass
 
 
-def make_env(env_id, seed, rank, log_dir, add_timestep, allow_early_resets):
+def make_env(env_id, seed, rank, log_dir, add_timestep, allow_early_resets, energy):
     def _thunk():
         if env_id.startswith("dm"):
             _, domain, task = env_id.split('.')
             env = dm_control2gym.make(domain_name=domain, task_name=task)
         else:
             env = gym.make(env_id)
-            env.energy_weight = 0.05    # TODO: convert to a parameter
+            env.energy_weight = energy   # TODO: convert to a parameter
 
         is_atari = hasattr(gym.envs, 'atari') and isinstance(
             env.unwrapped, gym.envs.atari.atari_env.AtariEnv)
@@ -73,8 +73,8 @@ def make_env(env_id, seed, rank, log_dir, add_timestep, allow_early_resets):
     return _thunk
 
 def make_vec_envs(env_name, seed, num_processes, gamma, log_dir, add_timestep,
-                  device, allow_early_resets, num_frame_stack=None):
-    envs = [make_env(env_name, seed, i, log_dir, add_timestep, allow_early_resets)
+                  device, allow_early_resets, energy, num_frame_stack=None):
+    envs = [make_env(env_name, seed, i, log_dir, add_timestep, allow_early_resets, energy)
             for i in range(num_processes)]
 
     if len(envs) > 1:

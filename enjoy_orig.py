@@ -31,7 +31,7 @@ args.det = not args.non_det
 
 env = make_vec_envs(args.env_name, args.seed + 1000, 1,
                             None, None, args.add_timestep, device='cpu',
-                            allow_early_resets=False)
+                            allow_early_resets=False, energy=args.energy)
 
 env.render('human')
 
