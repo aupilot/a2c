@@ -1,5 +1,4 @@
 import copy
-import glob
 import os
 import time
 from collections import deque
@@ -14,7 +13,6 @@ from a2c_ppo_acktr.envs import make_vec_envs
 from a2c_ppo_acktr.model import Policy
 from a2c_ppo_acktr.storage import RolloutStorage
 from a2c_ppo_acktr.utils import get_vec_normalize, update_linear_schedule
-from a2c_ppo_acktr.visualize import visdom_plot
 
 
 args = get_args()
@@ -43,7 +41,7 @@ def main():
     # writer = SummaryWriter()
 
     envs = make_vec_envs(args.env_name, args.seed, args.num_processes,
-                        args.gamma, args.log_dir, args.add_timestep, device, True)
+                        args.gamma, args.log_dir, args.add_timestep, device, True, energy=0.01)
 
     actor_critic = Policy(envs.observation_space.shape, envs.action_space,
         base_kwargs={'recurrent': args.recurrent_policy})
@@ -142,7 +140,7 @@ def main():
 
         if j % args.log_interval == 0 and len(episode_rewards) > 1:
             end = time.time()
-            print("Updates {}, num timesteps {}, FPS {} \n Last {} training episodes: mean/median reward {:.1f}/{:.1f}, min/max reward {:.1f}/{:.1f}\n".
+            print("Updates {} num timesteps {} FPS {} Last {} Episodes: mean/median reward {:.1f}/{:.1f}, min/max reward {:.1f}/{:.1f}".
                 format(j, total_num_steps,
                        int(total_num_steps / (end - start)),
                        len(episode_rewards),
