@@ -71,6 +71,7 @@ def main():
     rollouts.to(device)
 
     episode_rewards = deque(maxlen=10)
+    mean_episode_rewards = 0.0
 
     start = time.time()
     for j in range(num_updates):
@@ -140,7 +141,7 @@ def main():
 
         if j % args.log_interval == 0 and len(episode_rewards) > 1:
             end = time.time()
-            print("Updates {} num timesteps {} FPS {} Last {} Episodes: mean/median reward {:.1f}/{:.1f}, min/max reward {:.1f}/{:.1f}".
+            print("Updates {} num timesteps {} FPS {} Last {} Episodes: mean/median reward {:.1f}/{:.1f}, min/max reward {:.1f}/{:.1f}, loss {:.1f/:.1f}".
                 format(j, total_num_steps,
                        int(total_num_steps / (end - start)),
                        len(episode_rewards),
@@ -149,6 +150,7 @@ def main():
                        np.min(episode_rewards),
                        np.max(episode_rewards), dist_entropy,
                        value_loss, action_loss))
+            mean_episode_rewards = 0.9 * mean_episode_rewards + 0.1 * np.mean(episode_rewards)
 
         if (args.eval_interval is not None
                 and len(episode_rewards) > 1
@@ -198,7 +200,7 @@ def main():
             #                     'V Loss':value_loss,
             #                    'A Loss': action_loss
             #                     }, j)
-            writer.add_scalar('Reward', rollouts.returns[-1].sum().cpu().numpy(), j)
+            writer.add_scalar('Reward', mean_episode_rewards, j)
             writer.add_scalar('V Loss', value_loss, j)
             writer.add_scalar('A Loss', action_loss, j)
 

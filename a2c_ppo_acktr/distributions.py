@@ -101,3 +101,32 @@ class Bernoulli(nn.Module):
     def forward(self, x):
         x = self.linear(x)
         return FixedBernoulli(logits=x)
+
+
+class OrnsteinUhlenbeckActionNoise(nn.Module):
+    def __init__(self, action_size, sigma=0.3, theta=.15, dt=1e-2, mu=None, x0=None):
+        super(OrnsteinUhlenbeckActionNoise, self).__init__()
+
+        self.action_size = action_size
+        self.theta = theta
+        if mu is None:
+            self.mu = torch.zeros(action_size)
+        else:
+            self.mu = mu
+        self.sigma = sigma
+        self.dt = dt
+        self.x0 = x0
+        self.reset()
+
+    def forward(self, xx):
+        x = self.x_prev + self.theta * (self.mu - self.x_prev) * self.dt + \
+                self.sigma * torch.sqrt(self.dt) * torch.random.normal(size=self.action_size)
+        self.x_prev = x
+
+        return x
+
+    def reset(self):
+        self.x_prev = self.x0 if self.x0 is not None else torch.zeros(self.action_size)
+
+    # def __repr__(self):
+    #     return 'OrnsteinUhlenbeckActionNoise(mu={}, sigma={})'.format(self.mu, self.sigma)
