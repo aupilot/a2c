@@ -141,7 +141,7 @@ def main():
 
         if j % args.log_interval == 0 and len(episode_rewards) > 1:
             end = time.time()
-            print("Updates {} num timesteps {} FPS {} Last {} Episodes: mean/median reward {:.1f}/{:.1f}, min/max reward {:.1f}/{:.1f}, loss {:.1f/:.1f}".
+            print("Updates {} timesteps {} FPS {} Last {} mean/med rewd {:.1f}/{:.1f}, min/max rewd {:.1f}/{:.1f}".
                 format(j, total_num_steps,
                        int(total_num_steps / (end - start)),
                        len(episode_rewards),
