@@ -47,7 +47,7 @@ def get_args():
                         help='save interval, one save per n updates (default: 100)')
     parser.add_argument('--eval-interval', type=int, default=None,
                         help='eval interval, one eval per n updates (default: None)')
-    parser.add_argument('--vis-interval', type=int, default=80,
+    parser.add_argument('--vis-interval', type=int, default=40,
                         help='vis interval, one log per n updates (default: 100)')
     parser.add_argument('--num-env-steps', type=int, default=10e6,
                         help='number of environment steps to train (default: 10e6)')
@@ -68,8 +68,8 @@ def get_args():
                         help='use a linear schedule on the learning rate')
     parser.add_argument('--use-linear-clip-decay', action='store_true', default=False,
                         help='use a linear schedule on the ppo clipping parameter')
-    parser.add_argument('--vis', action='store_true', default=False,
-                        help='enable visdom visualization')
+    # parser.add_argument('--vis', action='store_true', default=False,
+    #                     help='enable visdom visualization')
     parser.add_argument('--port', type=int, default=8097,
                         help='port to run the server on (default: 8097)')
     args = parser.parse_args()

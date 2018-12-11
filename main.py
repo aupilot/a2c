@@ -202,6 +202,7 @@ def main():
             writer.add_scalar('V Loss', value_loss, j)
             writer.add_scalar('A Loss', action_loss, j)
 
+    writer.close()
 
 
 if __name__ == "__main__":
