@@ -17,13 +17,20 @@ class Policy(nn.Module):
         super(Policy, self).__init__()
         if base_kwargs is None:
             base_kwargs = {}
-        if base is None:
-            if len(obs_shape) == 3:
-                base = CNNBase
-            elif len(obs_shape) == 1:
-                base = MLPBase
-            else:
-                raise NotImplementedError
+        # if base is None:
+            # if len(obs_shape) == 3:
+            #     base = CNNBase
+            # elif len(obs_shape) == 1:
+            #     base = MLPBase
+            # else:
+            #     raise NotImplementedError
+
+        if base is 'mlp':
+            base = MLPBase
+        elif base is 'shared':
+            base = SharedBase
+        else:
+            raise NotImplementedError
 
         # self.base = base(obs_shape[0], **base_kwargs)
         self.base = base(obs_shape[0]*2, **base_kwargs)     # adding prev observation to the input
