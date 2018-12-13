@@ -266,3 +266,47 @@ class MLPBase(NNBase):
         hidden_actor = self.actor(x)
 
         return self.critic_linear(hidden_critic), hidden_actor, rnn_hxs
+
+
+class SharedBase(NNBase):
+    def __init__(self, num_inputs, recurrent=False, hidden_size=64):
+        super(SharedBase, self).__init__(recurrent, num_inputs, hidden_size)
+
+        if recurrent:
+            num_inputs = hidden_size
+
+        init_ = lambda m: init(m,
+            nn.init.orthogonal_,
+            lambda x: nn.init.constant_(x, 0),
+            np.sqrt(2))
+
+        self.layer1 = nn.Linear(num_inputs, hidden_size)
+        self.layer2 = nn.Linear(hidden_size, hidden_size*2)
+
+        self.layerA1 = nn.Linear(hidden_size*2, hidden_size)
+        self.layerA2 = nn.Linear(hidden_size, hidden_size)
+
+        self.layerC1 = nn.Linear(hidden_size*2, hidden_size)
+        self.layerC2 = nn.Linear(hidden_size, hidden_size)
+
+        self.critic_linear = init_(nn.Linear(hidden_size, 1))
+        # self.critic_linear = nn.Linear(hidden_size, 1)
+
+        self.train()
+
+    def forward(self, inputs, rnn_hxs, masks):
+        x = inputs
+
+        if self.is_recurrent:
+            x, rnn_hxs = self._forward_gru(x, rnn_hxs, masks)
+
+        x = F.tanh(self.layer1(x))
+        x = F.tanh(self.layer2(x))
+
+        x_a =  F.tanh(self.layerA1(x))
+        x_a =  F.tanh(self.layerA2(x_a))
+
+        x_c =  F.tanh(self.layerA1(x))
+        x_c =  self.layerA2(x_c)
+
+        return x_c, x_a, rnn_hxs
