@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import numpy as np
 
 from a2c_ppo_acktr.distributions import Categorical, DiagGaussian, Bernoulli
@@ -304,13 +303,13 @@ class SharedBase(NNBase):
         if self.is_recurrent:
             x, rnn_hxs = self._forward_gru(x, rnn_hxs, masks)
 
-        x = F.tanh(self.layer1(x))
-        x = F.tanh(self.layer2(x))
+        x = torch.tanh(self.layer1(x))
+        x = torch.tanh(self.layer2(x))
 
-        x_a = F.tanh(self.layerA1(x))
-        x_a = F.tanh(self.layerA2(x_a))
+        x_a = torch.tanh(self.layerA1(x))
+        x_a = torch.tanh(self.layerA2(x_a))
 
-        x_c = F.tanh(self.layerC1(x))
+        x_c = torch.tanh(self.layerC1(x))
         x_c = self.layerC2(x_c)
 
         return x_c, x_a, rnn_hxs
