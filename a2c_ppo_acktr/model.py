@@ -25,9 +25,9 @@ class Policy(nn.Module):
             # else:
             #     raise NotImplementedError
 
-        if base is 'mlp':
+        if base == 'mlp':
             base = MLPBase
-        elif base is 'shared':
+        elif base == 'shared':
             base = SharedBase
         else:
             raise NotImplementedError
@@ -294,10 +294,7 @@ class SharedBase(NNBase):
         self.layerA2 = nn.Linear(hidden_size, hidden_size)
 
         self.layerC1 = nn.Linear(hidden_size*2, hidden_size)
-        self.layerC2 = nn.Linear(hidden_size, hidden_size)
-
-        self.critic_linear = init_(nn.Linear(hidden_size, 1))
-        # self.critic_linear = nn.Linear(hidden_size, 1)
+        self.layerC2 = init_(nn.Linear(hidden_size, 1))
 
         self.train()
 
@@ -310,10 +307,10 @@ class SharedBase(NNBase):
         x = F.tanh(self.layer1(x))
         x = F.tanh(self.layer2(x))
 
-        x_a =  F.tanh(self.layerA1(x))
-        x_a =  F.tanh(self.layerA2(x_a))
+        x_a = F.tanh(self.layerA1(x))
+        x_a = F.tanh(self.layerA2(x_a))
 
-        x_c =  F.tanh(self.layerA1(x))
-        x_c =  self.layerA2(x_c)
+        x_c = F.tanh(self.layerC1(x))
+        x_c = self.layerC2(x_c)
 
         return x_c, x_a, rnn_hxs
