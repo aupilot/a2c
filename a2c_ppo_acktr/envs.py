@@ -12,6 +12,7 @@ from baselines.common.vec_env.subproc_vec_env import SubprocVecEnv
 from baselines.common.vec_env.dummy_vec_env import DummyVecEnv
 from baselines.common.vec_env.vec_normalize import VecNormalize as VecNormalize_
 
+from robots.munitaur_kir import MinitaurKirEnv
 
 try:
     import dm_control2gym
@@ -31,12 +32,16 @@ except ImportError:
 
 def make_env(env_id, seed, rank, log_dir, add_timestep, allow_early_resets, energy):
     def _thunk():
-        if env_id.startswith("dm"):
+        if env_id == 'MinitaurKirEnv':
+            # env = gym.make(env_id)
+            env = MinitaurKirEnv(energy_weight=energy)
+
+        elif env_id.startswith("dm"):
             _, domain, task = env_id.split('.')
             env = dm_control2gym.make(domain_name=domain, task_name=task)
         else:
             env = gym.make(env_id)
-            env.energy_weight = energy   # TODO: convert to a parameter
+            env.energy_weight = energy
 
         is_atari = hasattr(gym.envs, 'atari') and isinstance(
             env.unwrapped, gym.envs.atari.atari_env.AtariEnv)

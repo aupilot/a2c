@@ -14,6 +14,26 @@ from a2c_ppo_acktr.model import Policy
 from a2c_ppo_acktr.storage import RolloutStorage
 from a2c_ppo_acktr.utils import get_vec_normalize, update_linear_schedule
 
+'''
+--env-name=MinitaurKirEnv
+--num-processes=4
+--algo=ppo
+--num-mini-batch=32
+--lr=3e-4
+--use-gae
+--num-steps=2048
+--entropy-coef=0
+--value-loss-coef=0.5
+--ppo-epoch=10
+--num-env-steps=10000000
+--use-linear-lr-decay
+--energy=0.01
+--eps=1e-8
+
+jerky_weight=0.01 
+'''
+
+
 
 args = get_args()
 

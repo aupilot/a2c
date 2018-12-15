@@ -11,6 +11,9 @@ from a2c_ppo_acktr.utils import get_render_func, get_vec_normalize
 
 # workaround to unpickle olf model files
 import sys
+
+from robots.munitaur_kir import MinitaurKirEnv
+
 sys.path.append('a2c_ppo_acktr')
 
 parser = argparse.ArgumentParser(description='RL')
@@ -33,8 +36,10 @@ args.det = not args.non_det
 
 # minitaur must be initialised this way to render!
 import pybullet_envs.bullet.minitaur_gym_env as e
-env = e.MinitaurBulletEnv(render=True)
+env = MinitaurKirEnv(render=True)
+
 args.env_name = 'MinitaurBulletEnv-v0'
+
 
 
 # args.env_name = 'HalfCheetahBulletEnv-v0'

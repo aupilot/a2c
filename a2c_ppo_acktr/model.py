@@ -230,12 +230,12 @@ class MLPBase(NNBase):
             np.sqrt(2))
 
         self.actor = nn.Sequential(
-            # init_(nn.Linear(num_inputs, hidden_size)),
-            nn.Linear(num_inputs, hidden_size),
+            init_(nn.Linear(num_inputs, hidden_size)),
+            # nn.Linear(num_inputs, hidden_size),
             # nn.BatchNorm1d(hidden_size),
             nn.Tanh(),
-            # init_(nn.Linear(hidden_size, hidden_size)),
-            nn.Linear(hidden_size, hidden_size),
+            init_(nn.Linear(hidden_size, hidden_size)),
+            # nn.Linear(hidden_size, hidden_size),
             # nn.BatchNorm1d(hidden_size),
             nn.Tanh(),
             init_(nn.Linear(hidden_size, hidden_size)),
@@ -244,16 +244,16 @@ class MLPBase(NNBase):
         )
 
         self.critic = nn.Sequential(
-            # init_(nn.Linear(num_inputs, hidden_size)),
-            nn.Linear(num_inputs, hidden_size),
+            init_(nn.Linear(num_inputs, hidden_size)),
+            # nn.Linear(num_inputs, hidden_size),
             # nn.BatchNorm1d(hidden_size),
             nn.Tanh(), #LeakyReLU(),
-            # init_(nn.Linear(hidden_size, hidden_size)),
-            nn.Linear(hidden_size, hidden_size),
-            # nn.BatchNorm1d(hidden_size),
-            nn.Tanh(),
             init_(nn.Linear(hidden_size, hidden_size)),
             # nn.Linear(hidden_size, hidden_size),
+            # nn.BatchNorm1d(hidden_size),
+            nn.Tanh(),
+            # nn.Linear(hidden_size, hidden_size),
+            init_(nn.Linear(hidden_size, hidden_size)),
             nn.Tanh()
         )
 
