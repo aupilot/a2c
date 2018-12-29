@@ -368,9 +368,9 @@ class OscBase(NNBase):
 
         # separate sim time observations. It should be the last obs value
 
-        # local oscillator 0.5s
+        # local oscillator 0.4s
         # default timestep = 0.004125s
-        phase = torch.sin(0.004125 * 2 * 3.14159 / 0.5 * x[:, self.time_idx])
+        phase = torch.sin(0.004125 * 2 * 3.14159 / 0.4 * x[:, self.time_idx])
         phase = phase.unsqueeze(1)
 
         # remove sim time from observations

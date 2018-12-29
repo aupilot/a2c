@@ -14,25 +14,22 @@ from a2c_ppo_acktr.model import Policy
 from a2c_ppo_acktr.storage import RolloutStorage
 from a2c_ppo_acktr.utils import get_vec_normalize, update_linear_schedule
 
+
 '''
---env-name=AntBulletEnv-v0
---num-processes=1
+--env-name=HalfCheetahBulletEnv-v0
+--num-processes=8
 --algo=ppo
 --num-mini-batch=32
---lr=3e-4
+--lr=1e-4
 --use-gae
---num-steps=2048
---entropy-coef=0
+--num-steps=512
+--entropy-coef=0.00
 --value-loss-coef=0.5
---ppo-epoch=10
---num-env-steps=10000000
---use-linear-lr-decay
---energy=0.001
---eps=1e-8
-
-
+--ppo-epoch=4
+--num-env-steps=8000000
+--base=osc
+--add-timestep
 '''
-
 
 
 args = get_args()
