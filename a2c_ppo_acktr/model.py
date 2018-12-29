@@ -368,13 +368,14 @@ class OscBase(NNBase):
 
         # separate sim time observations. It should be the last obs value
 
-        # local oscillator
-        phase = torch.sin(0.5/3.14 * x[:, self.time_idx])
+        # local oscillator 0.5s
+        # default timestep = 0.004125s
+        phase = torch.sin(0.004125 * 2 * 3.14159 / 0.5 * x[:, self.time_idx])
         phase = phase.unsqueeze(1)
 
         # remove sim time from observations
         x[:, self.time_idx] = 0
-        x[:, self.time_idx * 2] = 0
+        x[:, -1] = 0
 
         # tau = 0.01
         # xdot = self.osc_y
@@ -396,5 +397,10 @@ class OscBase(NNBase):
 
         x_c = torch.tanh(self.layerC1(xo))
         x_c = self.layerC2(x_c)
+
+        # увидеть частоту осцилятора
+        # xxx = torch.zeros_like(x_a[:, 1:])
+        # xx2 = torch.cat((xxx, phase /2 +0.5), 1)
+        # return x_c, xx2
 
         return x_c, x_a

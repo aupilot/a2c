@@ -6,7 +6,7 @@ import numpy as np
 import torch
 from pybullet_envs.gym_locomotion_envs import AntBulletEnv
 
-from a2c_ppo_acktr.envs import VecPyTorch, make_vec_envs
+from a2c_ppo_acktr.envs import VecPyTorch, make_vec_envs, AddTimestep
 from a2c_ppo_acktr.utils import get_render_func, get_vec_normalize
 
 
@@ -43,6 +43,7 @@ args.det = not args.non_det
 args.env_name = 'HalfCheetahBulletEnv-v0'
 env = gym.make(args.env_name)
 env.render(mode="human")
+env = AddTimestep(env)
 
 
 # args.env_name = 'CartPole-v1'
