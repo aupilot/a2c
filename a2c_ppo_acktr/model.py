@@ -25,20 +25,22 @@ class Policy(nn.Module):
             #     raise NotImplementedError
 
         if base == 'mlp':
-            base = MLPBase
+            self.base = MLPBase(obs_shape[0]*2, **base_kwargs)     # adding prev observation to the input
         elif base == 'shared':
-            base = SharedBase
+            self.base = SharedBase(obs_shape[0] * 2, **base_kwargs)     # adding prev observation to the input
+        elif base == 'osc':
+            self.base = OscBase(obs_shape[0] * 2, **base_kwargs)  # adding prev observation that includes sim time
         else:
             raise NotImplementedError
 
         # self.base = base(obs_shape[0], **base_kwargs)
-        self.base = base(obs_shape[0]*2, **base_kwargs)     # adding prev observation to the input
 
         if action_space.__class__.__name__ == "Discrete":
             num_outputs = action_space.n
             self.dist = Categorical(self.base.output_size, num_outputs)
         elif action_space.__class__.__name__ == "Box":
             num_outputs = action_space.shape[0]
+            # self.dist = OrnsteinUhlenbeckActionNoise()
             self.dist = DiagGaussian(self.base.output_size, num_outputs)
         elif action_space.__class__.__name__ == "MultiBinary":
             num_outputs = action_space.shape[0]
@@ -59,7 +61,13 @@ class Policy(nn.Module):
         raise NotImplementedError
 
     def act(self, inputs, rnn_hxs, masks, deterministic=False):
-        value, actor_features, rnn_hxs = self.base(inputs, rnn_hxs, masks)
+
+        if type(self.base) is OscBase:
+            value, actor_features = self.base(inputs)
+        else:
+            value, actor_features, rnn_hxs = self.base(inputs, rnn_hxs, masks)
+
+        # value, actor_features, rnn_hxs = self.base(inputs, rnn_hxs, masks)
         dist = self.dist(actor_features)
 
         if deterministic:
@@ -75,11 +83,19 @@ class Policy(nn.Module):
         return value, action, action_log_probs, rnn_hxs
 
     def get_value(self, inputs, rnn_hxs, masks):
-        value, _, _ = self.base(inputs, rnn_hxs, masks)
+
+        if type(self.base) is OscBase:
+            value, _ = self.base(inputs)
+        else:
+            value, _, _ = self.base(inputs, rnn_hxs, masks)
         return value
 
     def evaluate_actions(self, inputs, rnn_hxs, masks, action):
-        value, actor_features, rnn_hxs = self.base(inputs, rnn_hxs, masks)
+
+        if type(self.base) is OscBase:
+            value, actor_features = self.base(inputs)
+        else:
+            value, actor_features, rnn_hxs = self.base(inputs, rnn_hxs, masks)
         dist = self.dist(actor_features)
 
         action_log_probs = dist.log_probs(action)
@@ -218,7 +234,7 @@ class CNNBase(NNBase):
 
 
 class MLPBase(NNBase):
-    def __init__(self, num_inputs, recurrent=False, hidden_size=128):
+    def __init__(self, num_inputs, recurrent=False, hidden_size=64):
         super(MLPBase, self).__init__(recurrent, num_inputs, hidden_size)
 
         if recurrent:
@@ -313,3 +329,72 @@ class SharedBase(NNBase):
         x_c = self.layerC2(x_c)
 
         return x_c, x_a, rnn_hxs
+
+
+class OscBase(NNBase):
+    def __init__(self, num_inputs, recurrent=False, hidden_size=64):
+        super(OscBase, self).__init__(recurrent, num_inputs, hidden_size)
+
+        init_ = lambda m: init(m,
+            nn.init.orthogonal_,
+            lambda x: nn.init.constant_(x, 0),
+            np.sqrt(2))
+
+        self.time_idx = num_inputs // 2 - 1
+
+        # self.osc_K = torch.FloatTensor([10.0**2])    # omega squared   #.to(self.device)
+        # self.osc_x = torch.FloatTensor([1.0])
+        # self.osc_y = torch.FloatTensor([0.0])
+        #
+
+        self.osc_fanout1 = nn.Linear(1, 12)
+        self.osc_fanout2 = nn.Linear(12, 12)
+
+
+        self.layer1 = nn.Linear(num_inputs, hidden_size)
+        # mix in the oscillator
+        self.layer2 = nn.Linear(hidden_size, hidden_size*2)
+
+        self.layerA1 = nn.Linear(hidden_size*2+12, hidden_size)
+        self.layerA2 = nn.Linear(hidden_size, hidden_size)
+
+        self.layerC1 = nn.Linear(hidden_size*2+12, hidden_size)
+        self.layerC2 = init_(nn.Linear(hidden_size, 1))
+
+        self.train()
+
+    def forward(self, inputs):
+        x = inputs
+
+        # separate sim time observations. It should be the last obs value
+
+        # local oscillator
+        phase = torch.sin(0.5/3.14 * x[:, self.time_idx])
+        phase = phase.unsqueeze(1)
+
+        # remove sim time from observations
+        x[:, self.time_idx] = 0
+        x[:, self.time_idx * 2] = 0
+
+        # tau = 0.01
+        # xdot = self.osc_y
+        # self.osc_x = self.osc_x + xdot * tau
+        # ydot = - self.osc_K * self.osc_x
+        # self.osc_y = self.osc_y + ydot * tau
+        # phase = torch.sin(omega * t)
+
+        o = torch.tanh(self.osc_fanout1(phase))
+        o = torch.tanh(self.osc_fanout2(o))
+
+        x = torch.tanh(self.layer1(x))
+        x = torch.tanh(self.layer2(x))
+
+        xo = torch.cat((x, o), 1)
+
+        x_a = torch.tanh(self.layerA1(xo))
+        x_a = torch.tanh(self.layerA2(x_a))
+
+        x_c = torch.tanh(self.layerC1(xo))
+        x_c = self.layerC2(x_c)
+
+        return x_c, x_a

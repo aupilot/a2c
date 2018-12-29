@@ -43,31 +43,30 @@ def make_env(env_id, seed, rank, log_dir, add_timestep, allow_early_resets, ener
             env = gym.make(env_id)
             env.energy_weight = energy
 
-        is_atari = hasattr(gym.envs, 'atari') and isinstance(
-            env.unwrapped, gym.envs.atari.atari_env.AtariEnv)
-        if is_atari:
-            env = make_atari(env_id)
+        # is_atari = hasattr(gym.envs, 'atari') and isinstance(
+        #     env.unwrapped, gym.envs.atari.atari_env.AtariEnv)
+        # if is_atari:
+        #     env = make_atari(env_id)
 
         env.seed(seed + rank)
 
         obs_shape = env.observation_space.shape
 
-        if add_timestep and len(
-                obs_shape) == 1 and str(env).find('TimeLimit') > -1:
+        if add_timestep and len(obs_shape) == 1 and str(env).find('TimeLimit') > -1:
             env = AddTimestep(env)
 
         if log_dir is not None:
             env = bench.Monitor(env, os.path.join(log_dir, str(rank)),
                                 allow_early_resets=allow_early_resets)
 
-        if is_atari:
-            if len(env.observation_space.shape) == 3:
-                env = wrap_deepmind(env)
-        elif len(env.observation_space.shape) == 3:
-            raise NotImplementedError("CNN models work only for atari,\n"
-                "please use a custom wrapper for a custom pixel input env.\n"
-                "See wrap_deepmind for an example.")
-        
+        # if is_atari:
+        #     if len(env.observation_space.shape) == 3:
+        #         env = wrap_deepmind(env)
+        # elif len(env.observation_space.shape) == 3:
+        #     raise NotImplementedError("CNN models work only for atari,\n"
+        #         "please use a custom wrapper for a custom pixel input env.\n"
+        #         "See wrap_deepmind for an example.")
+
         # If the input has shape (W,H,3), wrap for PyTorch convolutions
         obs_shape = env.observation_space.shape
         if len(obs_shape) == 3 and obs_shape[2] in [1, 3]:
@@ -227,3 +226,19 @@ class VecPyTorchFrameStack(VecEnvWrapper):
 
     def close(self):
         self.venv.close()
+
+
+#==kir
+# returns simulation time along with observations
+# class AddTime(gym.ObservationWrapper):
+#     def __init__(self, env=None):
+#         super(AddTime, self).__init__(env)
+#         self.observation_space = Box(
+#             self.observation_space.low[0],
+#             self.observation_space.high[0],
+#             [self.observation_space.shape[0] + 1],
+#             dtype=self.observation_space.dtype)
+#
+#     def observation(self, observation):
+#         return np.concatenate((observation, [self.env._elapsed_steps / ]))
+

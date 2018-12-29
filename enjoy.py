@@ -4,6 +4,7 @@ import os
 import gym
 import numpy as np
 import torch
+from pybullet_envs.gym_locomotion_envs import AntBulletEnv
 
 from a2c_ppo_acktr.envs import VecPyTorch, make_vec_envs
 from a2c_ppo_acktr.utils import get_render_func, get_vec_normalize
@@ -35,14 +36,15 @@ args.det = not args.non_det
 
 
 # minitaur must be initialised this way to render!
-import pybullet_envs.bullet.minitaur_gym_env as e
-env = MinitaurKirEnv(render=True)
+# env = MinitaurKirEnv(render=True)
+# args.env_name = 'MinitaurBulletEnv-v0'
 
-args.env_name = 'MinitaurBulletEnv-v0'
+# args.env_name = 'AntBulletEnv-v0'
+args.env_name = 'HalfCheetahBulletEnv-v0'
+env = gym.make(args.env_name)
+env.render(mode="human")
 
 
-
-# args.env_name = 'HalfCheetahBulletEnv-v0'
 # args.env_name = 'CartPole-v1'
 # env = gym.make(args.env_name)
 # env.render(mode="human")
