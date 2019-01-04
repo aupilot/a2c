@@ -39,11 +39,13 @@ args.det = not args.non_det
 # env = MinitaurKirEnv(render=True)
 # args.env_name = 'MinitaurBulletEnv-v0'
 
-# args.env_name = 'AntBulletEnv-v0'
-args.env_name = 'HalfCheetahBulletEnv-v0'
+args.env_name = 'AntBulletEnv-v0'
+# args.env_name = 'HalfCheetahBulletEnv-v0'
 env = gym.make(args.env_name)
 env.render(mode="human")
-env = AddTimestep(env)
+
+if args.add_timestep:
+   env = AddTimestep(env)
 
 
 # args.env_name = 'CartPole-v1'

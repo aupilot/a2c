@@ -65,29 +65,6 @@ class Categorical(nn.Module):
         return FixedCategorical(logits=x)
 
 
-# ==kir моя версия
-# class DiagGaussian(nn.Module):
-#
-#     def __init__(self, num_inputs, num_outputs):
-#         super(DiagGaussian, self).__init__()
-#
-#         self.fc_mean = nn.Linear(num_inputs, num_outputs)
-#         nn.init.orthogonal_(self.fc_mean.weight, gain=0.1)
-#         nn.init.constant_(self.fc_mean.bias, 0.0)
-#         self.logstd = nn.Linear(num_inputs, num_outputs)
-#         nn.init.normal_(self.logstd.weight, mean=0, std=0.01)
-#         nn.init.constant_(self.logstd.bias, 0.0)  # logstd == 0 --> std == 1
-#
-#     def forward(self, x):
-#         action_mean = self.fc_mean(x)
-#         # action_logstd = self.logstd(x)
-#
-#         aaa = self.logstd(x)
-#         action_logstd = torch.zeros_like(aaa)
-#         return torch.distributions.Normal(action_mean, action_logstd.exp())
-
-
-
 class DiagGaussian(nn.Module):
     def __init__(self, num_inputs, num_outputs):
         super(DiagGaussian, self).__init__()
