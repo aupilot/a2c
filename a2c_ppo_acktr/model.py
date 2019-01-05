@@ -25,11 +25,11 @@ class Policy(nn.Module):
             #     raise NotImplementedError
 
         if base == 'mlp':
-            self.base = MLPBase(obs_shape[0]*2, **base_kwargs)     # adding prev observation to the input
+            self.base = MLPBase(obs_shape[0], **base_kwargs)     # adding prev observation to the input
         elif base == 'shared':
-            self.base = SharedBase(obs_shape[0] * 2, **base_kwargs)     # adding prev observation to the input
+            self.base = SharedBase(obs_shape[0], **base_kwargs)     # adding prev observation to the input
         elif base == 'osc':
-            self.base = OscBase(obs_shape[0] * 2, **base_kwargs)  # adding prev observation that includes sim time
+            self.base = OscBase(obs_shape[0], **base_kwargs)  # adding prev observation that includes sim time
         else:
             raise NotImplementedError
 
